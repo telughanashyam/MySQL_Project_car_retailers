@@ -1,0 +1,339 @@
+mysql> CREATE DATABASE IF NOT EXISTS car_retailers_db;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> USE car_retailers_db;
+Database changed
+mysql>
+mysql>
+mysql> CREATE TABLE customers (
+    ->     customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     first_name VARCHAR(50) NOT NULL,
+    ->     last_name VARCHAR(50) NOT NULL,
+    ->     phone VARCHAR(15) NOT NULL UNIQUE,
+    ->     email VARCHAR(100) UNIQUE,
+    ->     city VARCHAR(60),
+    ->     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> CREATE TABLE employees (
+    ->     employee_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     first_name VARCHAR(50) NOT NULL,
+    ->     last_name VARCHAR(50) NOT NULL,
+    ->     phone VARCHAR(15) NOT NULL UNIQUE,
+    ->     job_title VARCHAR(50) DEFAULT 'Sales Executive',
+    ->     hire_date DATE
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> CREATE TABLE brands (
+    ->     brand_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     brand_name VARCHAR(60) NOT NULL UNIQUE,
+    ->     country VARCHAR(60)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> CREATE TABLE cars (
+    ->     car_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     brand_id INT NOT NULL,
+    ->     model_name VARCHAR(80) NOT NULL,
+    ->     model_year YEAR NOT NULL,
+    ->     color VARCHAR(30),
+    ->     fuel_type ENUM('Petrol','Diesel','Electric','Hybrid','CNG') NOT NULL,
+    ->     transmission ENUM('Manual','Automatic') NOT NULL,
+    ->     price DECIMAL(12,2) NOT NULL,
+    ->     car_status ENUM('Available','Sold','Maintenance') NOT NULL DEFAULT 'Available',
+    ->     vin VARCHAR(30) NOT NULL UNIQUE,
+    ->     CONSTRAINT chk_car_price CHECK (price > 0),
+    ->     CONSTRAINT fk_cars_brand FOREIGN KEY (brand_id) REFERENCES brands(brand_id)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> CREATE TABLE sales (
+    ->     sale_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     car_id INT NOT NULL UNIQUE,
+    ->     customer_id INT NOT NULL,
+    ->     employee_id INT NOT NULL,
+    ->     sale_date DATE NOT NULL,
+    ->     sale_price DECIMAL(12,2) NOT NULL,
+    ->     sale_status ENUM('Completed','Cancelled') NOT NULL DEFAULT 'Completed',
+    ->     CONSTRAINT chk_sale_price CHECK (sale_price > 0),
+    ->     CONSTRAINT fk_sales_car FOREIGN KEY (car_id) REFERENCES cars(car_id),
+    ->     CONSTRAINT fk_sales_customer FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    ->     CONSTRAINT fk_sales_employee FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> CREATE TABLE payments (
+    ->     payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     sale_id INT NOT NULL UNIQUE,
+    ->     payment_date DATE NOT NULL,
+    ->     amount DECIMAL(12,2) NOT NULL,
+    ->     payment_method ENUM('Cash','Card','Bank Transfer','Loan') NOT NULL,
+    ->     payment_status ENUM('Paid','Pending','Refunded') NOT NULL DEFAULT 'Paid',
+    ->     CONSTRAINT chk_payment_amount CHECK (amount > 0),
+    ->     CONSTRAINT fk_payments_sale FOREIGN KEY (sale_id) REFERENCES sales(sale_id)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE INDEX idx_cars_status ON cars(car_status);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_cars_brand_model ON cars(brand_id, model_name);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_sales_date ON sales(sale_date);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_sales_customer ON sales(customer_id);
+Query OK, 0 rows affected (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_sales_employee ON sales(employee_id);
+Query OK, 0 rows affected (0.04 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_payments_method ON payments(payment_method);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> INSERT INTO brands (brand_name, country) VALUES
+    -> ('Maruti Suzuki','India'), ('Hyundai','South Korea'), ('Tata','India'),
+    -> ('Toyota','Japan'), ('Honda','Japan'), ('Mahindra','India');
+Query OK, 6 rows affected (0.01 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> INSERT INTO customers (first_name,last_name,phone,email,city) VALUES
+    -> ('Arjun','Kumar','9000000001','arjun@example.com','Hyderabad'),
+    -> ('Sita','Reddy','9000000002','sita@example.com','Vijayawada'),
+    -> ('Rahul','Sharma','9000000003','rahul@example.com','Bengaluru'),
+    -> ('Priya','Das','9000000004','priya@example.com','Chennai');
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> INSERT INTO employees (first_name,last_name,phone,job_title,hire_date) VALUES
+    -> ('Kiran','Rao','9111111111','Sales Executive','2023-04-10'),
+    -> ('Meena','Joseph','9222222222','Sales Manager','2022-08-15'),
+    -> ('Vijay','Naidu','9333333333','Sales Executive','2024-01-05');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> INSERT INTO cars (brand_id,model_name,model_year,color,fuel_type,transmission,price,car_status,vin) VALUES
+    -> (1,'Swift',2024,'Red','Petrol','Manual',750000,'Available','VINMS001'),
+    -> (2,'Creta',2024,'White','Diesel','Automatic',1650000,'Available','VINHY002'),
+    -> (3,'Nexon EV',2025,'Blue','Electric','Automatic',1450000,'Available','VINTA003'),
+    -> (4,'Innova Hycross',2024,'Silver','Hybrid','Automatic',2500000,'Available','VINTY004'),
+    -> (5,'City',2023,'Black','Petrol','Automatic',1250000,'Available','VINHO005'),
+    -> (6,'Scorpio N',2024,'Grey','Diesel','Manual',1800000,'Available','VINMA006'),
+    -> (1,'Baleno',2023,'Grey','Petrol','Manual',850000,'Maintenance','VINMS007');
+Query OK, 7 rows affected (0.01 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> DELIMITER //
+mysql> CREATE TRIGGER trg_before_sale_insert
+    -> BEFORE INSERT ON sales
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     DECLARE current_status VARCHAR(20);
+    ->     SELECT car_status INTO current_status
+    ->     FROM cars WHERE car_id = NEW.car_id;
+    ->
+    ->     IF current_status IS NULL OR current_status <> 'Available' THEN
+    ->         SIGNAL SQLSTATE '45000'
+    ->         SET MESSAGE_TEXT = 'Car is not available for sale';
+    ->     END IF;
+    -> END//
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql>
+mysql> DELIMITER //
+mysql> CREATE TRIGGER trg_after_sale_insert
+    -> AFTER INSERT ON sales
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     UPDATE cars SET car_status = 'Sold'
+    ->     WHERE car_id = NEW.car_id;
+    -> END//
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql>
+mysql> DROP PROCEDURE IF EXISTS sp_sell_car;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE sp_sell_car (
+    ->     IN p_car_id INT,
+    ->     IN p_customer_id INT,
+    ->     IN p_employee_id INT,
+    ->     IN p_sale_date DATE,
+    ->     IN p_sale_price DECIMAL(12,2),
+    ->     IN p_payment_method VARCHAR(30)
+    -> )
+    -> BEGIN
+    ->     DECLARE v_sale_id INT;
+    ->     DECLARE v_car_price DECIMAL(12,2);
+    ->     DECLARE v_status VARCHAR(20);
+    ->
+    ->     DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    ->     BEGIN
+    ->         ROLLBACK;
+    ->         RESIGNAL;
+    ->     END;
+    ->
+    ->     START TRANSACTION;
+    ->
+    ->     SELECT car_status, price INTO v_status, v_car_price
+    ->     FROM cars WHERE car_id = p_car_id FOR UPDATE;
+    ->
+    ->     IF v_status IS NULL OR v_status <> 'Available' THEN
+    ->         SIGNAL SQLSTATE '45000'
+    ->         SET MESSAGE_TEXT = 'Selected car is not available';
+    ->     END IF;
+    ->
+    ->     IF p_sale_price <= 0 THEN
+    ->         SIGNAL SQLSTATE '45000'
+    ->         SET MESSAGE_TEXT = 'Sale price must be greater than zero';
+    ->     END IF;
+    ->
+    ->     INSERT INTO sales (car_id,customer_id,employee_id,sale_date,sale_price)
+    ->     VALUES (p_car_id,p_customer_id,p_employee_id,p_sale_date,p_sale_price);
+    ->
+    ->     SET v_sale_id = LAST_INSERT_ID();
+    ->
+    ->     INSERT INTO payments (sale_id,payment_date,amount,payment_method,payment_status)
+    ->     VALUES (v_sale_id,p_sale_date,p_sale_price,p_payment_method,'Paid');
+    ->
+    ->     COMMIT;
+    -> END//
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql>
+mysql> CREATE VIEW vw_available_cars AS
+    -> SELECT c.car_id, b.brand_name, c.model_name, c.model_year, c.color,
+    ->        c.fuel_type, c.transmission, c.price
+    -> FROM cars c
+    -> JOIN brands b ON c.brand_id = b.brand_id
+    -> WHERE c.car_status = 'Available';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql>
+mysql> CREATE VIEW vw_sales_details AS
+    -> SELECT s.sale_id, s.sale_date, b.brand_name, c.model_name,
+    ->        CONCAT(cu.first_name,' ',cu.last_name) AS customer_name,
+    ->        CONCAT(e.first_name,' ',e.last_name) AS employee_name,
+    ->        s.sale_price, s.sale_status,
+    ->        p.payment_method, p.payment_status
+    -> FROM sales s
+    -> JOIN cars c ON s.car_id = c.car_id
+    -> JOIN brands b ON c.brand_id = b.brand_id
+    -> JOIN customers cu ON s.customer_id = cu.customer_id
+    -> JOIN employees e ON s.employee_id = e.employee_id
+    -> LEFT JOIN payments p ON s.sale_id = p.sale_id;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql>
+mysql> CREATE VIEW vw_sales_summary AS
+    -> SELECT COUNT(*) AS total_sales,
+    ->        COALESCE(SUM(sale_price),0) AS total_revenue,
+    ->        COALESCE(AVG(sale_price),0) AS average_sale_price
+    -> FROM sales
+    -> WHERE sale_status = 'Completed';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM vw_available_cars;
++--------+---------------+----------------+------------+--------+-----------+--------------+------------+
+| car_id | brand_name    | model_name     | model_year | color  | fuel_type | transmission | price      |
++--------+---------------+----------------+------------+--------+-----------+--------------+------------+
+|      5 | Honda         | City           |       2023 | Black  | Petrol    | Automatic    | 1250000.00 |
+|      2 | Hyundai       | Creta          |       2024 | White  | Diesel    | Automatic    | 1650000.00 |
+|      6 | Mahindra      | Scorpio N      |       2024 | Grey   | Diesel    | Manual       | 1800000.00 |
+|      1 | Maruti Suzuki | Swift          |       2024 | Red    | Petrol    | Manual       |  750000.00 |
+|      3 | Tata          | Nexon EV       |       2025 | Blue   | Electric  | Automatic    | 1450000.00 |
+|      4 | Toyota        | Innova Hycross |       2024 | Silver | Hybrid    | Automatic    | 2500000.00 |
++--------+---------------+----------------+------------+--------+-----------+--------------+------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT * FROM vw_sales_details;
+Empty set (0.00 sec)
+
+mysql> SELECT * FROM vw_sales_summary;
++-------------+---------------+--------------------+
+| total_sales | total_revenue | average_sale_price |
++-------------+---------------+--------------------+
+|           0 |          0.00 |           0.000000 |
++-------------+---------------+--------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT brand_name, COUNT(*) AS available_count
+    -> FROM vw_available_cars GROUP BY brand_name ORDER BY available_count DESC;
++---------------+-----------------+
+| brand_name    | available_count |
++---------------+-----------------+
+| Honda         |               1 |
+| Hyundai       |               1 |
+| Mahindra      |               1 |
+| Maruti Suzuki |               1 |
+| Tata          |               1 |
+| Toyota        |               1 |
++---------------+-----------------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT payment_method, SUM(amount) AS amount_collected
+    -> FROM payments WHERE payment_status = 'Paid'
+    -> GROUP BY payment_method ORDER BY amount_collected DESC;
+Empty set (0.00 sec)
+
+mysql> SELECT * FROM cars WHERE price BETWEEN 700000 AND 1600000 ORDER BY price;
++--------+----------+------------+------------+-------+-----------+--------------+------------+-------------+----------+
+| car_id | brand_id | model_name | model_year | color | fuel_type | transmission | price      | car_status  | vin      |
++--------+----------+------------+------------+-------+-----------+--------------+------------+-------------+----------+
+|      1 |        1 | Swift      |       2024 | Red   | Petrol    | Manual       |  750000.00 | Available   | VINMS001 |
+|      7 |        1 | Baleno     |       2023 | Grey  | Petrol    | Manual       |  850000.00 | Maintenance | VINMS007 |
+|      5 |        5 | City       |       2023 | Black | Petrol    | Automatic    | 1250000.00 | Available   | VINHO005 |
+|      3 |        3 | Nexon EV   |       2025 | Blue  | Electric  | Automatic    | 1450000.00 | Available   | VINTA003 |
++--------+----------+------------+------------+-------+-----------+--------------+------------+-------------+----------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM customers WHERE city IN ('Hyderabad','Vijayawada');
++-------------+------------+-----------+------------+-------------------+------------+---------------------+
+| customer_id | first_name | last_name | phone      | email             | city       | created_at          |
++-------------+------------+-----------+------------+-------------------+------------+---------------------+
+|           1 | Arjun      | Kumar     | 9000000001 | arjun@example.com | Hyderabad  | 2026-10-23 11:32:14 |
+|           2 | Sita       | Reddy     | 9000000002 | sita@example.com  | Vijayawada | 2026-10-23 11:32:14 |
++-------------+------------+-----------+------------+-------------------+------------+---------------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT model_name, price,
+    ->        CASE WHEN price < 900000 THEN 'Budget'
+    ->             WHEN price < 1600000 THEN 'Mid-range'
+    ->             ELSE 'Premium' END AS price_category
+    -> FROM cars;
++----------------+------------+----------------+
+| model_name     | price      | price_category |
++----------------+------------+----------------+
+| Swift          |  750000.00 | Budget         |
+| Creta          | 1650000.00 | Premium        |
+| Nexon EV       | 1450000.00 | Mid-range      |
+| Innova Hycross | 2500000.00 | Premium        |
+| City           | 1250000.00 | Mid-range      |
+| Scorpio N      | 1800000.00 | Premium        |
+| Baleno         |  850000.00 | Budget         |
++----------------+------------+----------------+
+7 rows in set (0.00 sec)
