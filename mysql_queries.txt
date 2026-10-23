@@ -232,7 +232,6 @@ mysql> CREATE VIEW vw_available_cars AS
     -> WHERE c.car_status = 'Available';
 Query OK, 0 rows affected (0.01 sec)
 
-mysql>
 mysql> CREATE VIEW vw_sales_details AS
     -> SELECT s.sale_id, s.sale_date, b.brand_name, c.model_name,
     ->        CONCAT(cu.first_name,' ',cu.last_name) AS customer_name,
@@ -247,7 +246,6 @@ mysql> CREATE VIEW vw_sales_details AS
     -> LEFT JOIN payments p ON s.sale_id = p.sale_id;
 Query OK, 0 rows affected (0.01 sec)
 
-mysql>
 mysql> CREATE VIEW vw_sales_summary AS
     -> SELECT COUNT(*) AS total_sales,
     ->        COALESCE(SUM(sale_price),0) AS total_revenue,
@@ -256,7 +254,7 @@ mysql> CREATE VIEW vw_sales_summary AS
     -> WHERE sale_status = 'Completed';
 Query OK, 0 rows affected (0.00 sec)
 
-mysql>
+mysql>-- How do you display all available cars?
 mysql> SELECT * FROM vw_available_cars;
 +--------+---------------+----------------+------------+--------+-----------+--------------+------------+
 | car_id | brand_name    | model_name     | model_year | color  | fuel_type | transmission | price      |
@@ -270,9 +268,11 @@ mysql> SELECT * FROM vw_available_cars;
 +--------+---------------+----------------+------------+--------+-----------+--------------+------------+
 6 rows in set (0.00 sec)
 
+mysql>-- How do you display the complete sales details?
 mysql> SELECT * FROM vw_sales_details;
 Empty set (0.00 sec)
 
+mysql>-- How do you display the sales summary?
 mysql> SELECT * FROM vw_sales_summary;
 +-------------+---------------+--------------------+
 | total_sales | total_revenue | average_sale_price |
@@ -281,6 +281,7 @@ mysql> SELECT * FROM vw_sales_summary;
 +-------------+---------------+--------------------+
 1 row in set (0.00 sec)
 
+mysql>-- How do you count available cars for each brand?
 mysql> SELECT brand_name, COUNT(*) AS available_count
     -> FROM vw_available_cars GROUP BY brand_name ORDER BY available_count DESC;
 +---------------+-----------------+
@@ -295,11 +296,13 @@ mysql> SELECT brand_name, COUNT(*) AS available_count
 +---------------+-----------------+
 6 rows in set (0.00 sec)
 
+mysql>-- How do you calculate the total amount collected for each payment method?
 mysql> SELECT payment_method, SUM(amount) AS amount_collected
     -> FROM payments WHERE payment_status = 'Paid'
     -> GROUP BY payment_method ORDER BY amount_collected DESC;
 Empty set (0.00 sec)
 
+mysql>-- How do you display cars priced between ₹7 lakhs and ₹16 lakhs?
 mysql> SELECT * FROM cars WHERE price BETWEEN 700000 AND 1600000 ORDER BY price;
 +--------+----------+------------+------------+-------+-----------+--------------+------------+-------------+----------+
 | car_id | brand_id | model_name | model_year | color | fuel_type | transmission | price      | car_status  | vin      |
@@ -311,6 +314,7 @@ mysql> SELECT * FROM cars WHERE price BETWEEN 700000 AND 1600000 ORDER BY price;
 +--------+----------+------------+------------+-------+-----------+--------------+------------+-------------+----------+
 4 rows in set (0.00 sec)
 
+mysql>-- How do you find customers from Hyderabad and Vijayawada?
 mysql> SELECT * FROM customers WHERE city IN ('Hyderabad','Vijayawada');
 +-------------+------------+-----------+------------+-------------------+------------+---------------------+
 | customer_id | first_name | last_name | phone      | email             | city       | created_at          |
@@ -320,6 +324,7 @@ mysql> SELECT * FROM customers WHERE city IN ('Hyderabad','Vijayawada');
 +-------------+------------+-----------+------------+-------------------+------------+---------------------+
 2 rows in set (0.00 sec)
 
+mysql>-- How do you categorize cars based on their prices?
 mysql> SELECT model_name, price,
     ->        CASE WHEN price < 900000 THEN 'Budget'
     ->             WHEN price < 1600000 THEN 'Mid-range'
@@ -336,4 +341,68 @@ mysql> SELECT model_name, price,
 | Scorpio N      | 1800000.00 | Premium        |
 | Baleno         |  850000.00 | Budget         |
 +----------------+------------+----------------+
+7 rows in set (0.00 sec)
+
+mysql>-- How do you display cars that are currently under maintenance?
+mysql> SELECT model_name, price, car_status
+    -> FROM cars
+    -> WHERE car_status = 'Maintenance';
++------------+-----------+-------------+
+| model_name | price     | car_status  |
++------------+-----------+-------------+
+| Baleno     | 850000.00 | Maintenance |
++------------+-----------+-------------+
+1 row in set (0.00 sec)
+
+mysql> -- How do you find the most expensive car?
+mysql> SELECT model_name, price
+    -> FROM cars
+    -> ORDER BY price DESC
+    -> LIMIT 1;
++----------------+------------+
+| model_name     | price      |
++----------------+------------+
+| Innova Hycross | 2500000.00 |
++----------------+------------+
+1 row in set (0.00 sec)
+
+mysql> -- How do you count the total number of cars in the database?
+mysql> SELECT COUNT(*) AS total_cars
+    -> FROM cars;
++------------+
+| total_cars |
++------------+
+|          7 |
++------------+
+1 row in set (0.00 sec)
+
+mysql> -- How do you display all cars manufactured in 2024?
+mysql> SELECT model_name, model_year
+    -> FROM cars
+    -> WHERE model_year = 2024;
++----------------+------------+
+| model_name     | model_year |
++----------------+------------+
+| Swift          |       2024 |
+| Creta          |       2024 |
+| Innova Hycross |       2024 |
+| Scorpio N      |       2024 |
++----------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> -- How do you display cars from the lowest price to the highest price?
+mysql> SELECT model_name, price
+    -> FROM cars
+    -> ORDER BY price ASC;
++----------------+------------+
+| model_name     | price      |
++----------------+------------+
+| Swift          |  750000.00 |
+| Baleno         |  850000.00 |
+| City           | 1250000.00 |
+| Nexon EV       | 1450000.00 |
+| Creta          | 1650000.00 |
+| Scorpio N      | 1800000.00 |
+| Innova Hycross | 2500000.00 |
++----------------+------------+
 7 rows in set (0.00 sec)
