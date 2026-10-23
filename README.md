@@ -4,7 +4,7 @@ A MySQL database project for managing the core records of a car dealership, incl
 
 ## Project Overview
 
-This project organizes dealership information in a relational database and demonstrates commonly used MySQL database concepts. It is intended for learning, practice, and academic project submissions.
+This project organizes dealership information in a relational database and demonstrates commonly used MySQL database concepts.
 
 ## Objectives
 
@@ -18,7 +18,7 @@ This project organizes dealership information in a relational database and demon
 ## Technologies
 
 - **Database:** MySQL
-- **Recommended client:** MySQL Workbench
+- **Recommended client:** MySQL Command Line Client
 - **Recommended version:** MySQL 8.0.16 or later
 
 ## Database Structure
@@ -66,7 +66,6 @@ The database is named `car_retailers_db` and includes six main tables.
 - Views, stored procedures, triggers, and indexes.
 - Transactions and error handling.
 
-**Project requirement:** Common Table Expressions (CTEs) and window functions are not used.
 
 ## Views
 
@@ -90,13 +89,11 @@ Indexes are created on selected columns used in common filtering and joins, incl
 ## How to Run
 
 1. Install and start MySQL Server.
-2. Open MySQL Workbench or another compatible MySQL client.
-3. Open the project's SQL script.
+2. Open MySQL Command Line Client.
+3. Open the mysql_queries.txt file.
 4. Review the script before executing it.
 5. Execute the script in order.
 6. Inspect the created tables, views, and sample query results.
-
-> **Important:** The setup script drops and recreates the project's tables and views. Back up existing project data before running it, because records in those tables may be deleted. MySQL 8.0.16 or later is recommended for enforced `CHECK` constraints.
 
 ## Reports Supported
 
@@ -111,14 +108,6 @@ Indexes are created on selected columns used in common filtering and joins, incl
 
 Sales and payment reports may be empty until a sale is recorded. This is expected in a newly initialized database.
 
-## Suggested Repository Structure
-
-- `car_retailers_management.sql` — database setup, sample data, and database objects.
-- `README.md` — project documentation.
-- `diagrams/ER_Diagram.png` — ER diagram, if included.
-- `presentation/Car_Retailers_Management_System.pptx` — presentation, if included.
-- `docs/Step_by_Step_Tenglish.md` — Tenglish explanation, if included.
-
 ## Limitations
 
 - This is an educational database project, not a complete production dealership application.
@@ -130,6 +119,3 @@ Sales and payment reports may be empty until a sale is recorded. This is expecte
 
 This project provides practice with relational database design, constraints, table relationships, reporting queries, and MySQL programmable objects.
 
-## License
-
-No license is specified. Add a license file if you want to define how others may use, modify, or distribute the project.
